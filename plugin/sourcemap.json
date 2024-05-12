@@ -1,0 +1,1 @@
+{"name":"stylua","className":"Folder","filePaths":["default.project.json"],"children":[{"name":"format","className":"ModuleScript","filePaths":["src\\format\\init.luau"],"children":[{"name":"stylua_wasynth","className":"ModuleScript","filePaths":["src\\format\\stylua_wasynth.luau"]}]},{"name":"plugin","className":"Script","filePaths":["src\\plugin.server.luau"]}]}
