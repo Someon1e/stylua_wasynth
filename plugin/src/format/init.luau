@@ -1,4 +1,4 @@
-local wasm = { env = { func_list = {  } } }
+local wasm = { env = { func_list = {} } }
 local stylua = require(script.stylua_wasynth)(wasm)
 
 return function(text)
