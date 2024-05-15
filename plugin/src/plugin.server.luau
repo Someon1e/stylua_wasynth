@@ -8,6 +8,13 @@ local function isScript(instance)
 	return instance:IsA("Script") or instance:IsA("LocalScript") or instance:IsA("ModuleScript")
 end
 
+local function formatWithConfig(source)
+	return format(source, {
+		useSpaces = true,
+		indentWidth = 3,
+	})
+end
+
 local function formatSelected()
 	local recording = assert(ChangeHistoryService:TryBeginRecording("Format scripts"), "ChangeHistoryService failed")
 
@@ -16,7 +23,7 @@ local function formatSelected()
 			continue
 		end
 
-		ScriptEditorService:UpdateSourceAsync(selected, format)
+		ScriptEditorService:UpdateSourceAsync(selected, formatWithConfig)
 	end
 
 	ChangeHistoryService:FinishRecording(recording, Enum.FinishRecordingOperation.Commit)

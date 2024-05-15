@@ -10,10 +10,10 @@ thread_local! {
     static WASM_OUT_LENGTH: RefCell<usize> = RefCell::new(0);
 }
 
-fn process(code: String) -> String {
+fn process(code: String, config: stylua_lib::Config) -> String {
     match stylua_lib::format_code(
         &code,
-        stylua_lib::Config::new(), // TODO: user config
+        config,
         None,
         stylua_lib::OutputVerification::None, // TODO: change this later?
     ) {
@@ -24,9 +24,18 @@ fn process(code: String) -> String {
 
 #[cfg(target_arch = "wasm32")]
 #[no_mangle]
-pub fn wasm_process(code: CString) -> *mut c_char {
+pub fn wasm_process(code: CString, use_spaces: bool, indent_width: u8) -> *mut c_char {
+    let mut config = stylua_lib::Config::new();
+
+    config.indent_type = if use_spaces {
+        stylua_lib::IndentType::Spaces
+    } else {
+        stylua_lib::IndentType::Tabs
+    };
+    config.indent_width = indent_width.try_into().unwrap();
+
     let output = match code.to_str() {
-        Ok(code) => process(code.to_string()),
+        Ok(code) => process(code.to_string(), config),
         Err(error) => error.to_string(),
     };
     WASM_OUT_LENGTH.set(output.len());
@@ -50,5 +59,5 @@ fn wasm_heap_alloc_string(capacity: usize) -> *mut u8 {
 }
 
 fn main() {
-    println!("{}", process("print 'test'".to_string()));
+    println!("{}", process("print 'test'".to_string(), stylua_lib::Config::new()));
 }
