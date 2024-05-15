@@ -13,7 +13,7 @@ local function formatSelected()
 
 	for _, selected in Selection:Get() do
 		if not isScript(selected) then
-			return
+			continue
 		end
 
 		ScriptEditorService:UpdateSourceAsync(selected, format)
