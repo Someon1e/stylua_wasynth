@@ -8,15 +8,18 @@ local function isScript(instance)
 	return instance:IsA("Script") or instance:IsA("LocalScript") or instance:IsA("ModuleScript")
 end
 
-local function formatWithConfig(source)
-	return format(source, {
-		useSpaces = true,
-		indentWidth = 3,
-	})
-end
-
 local function formatSelected()
 	local recording = assert(ChangeHistoryService:TryBeginRecording("Format scripts"), "ChangeHistoryService failed")
+
+	local studioSettings = settings().Studio
+	local useSpaces = studioSettings["Indent Using Spaces"]
+	local indentWidth = studioSettings["Tab Width"]
+	local function formatWithConfig(source)
+		return format(source, {
+			useSpaces = useSpaces,
+			indentWidth = indentWidth,
+		})
+	end
 
 	for _, selected in Selection:Get() do
 		if not isScript(selected) then
