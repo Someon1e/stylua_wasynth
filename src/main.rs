@@ -24,7 +24,7 @@ fn process(code: String, config: stylua_lib::Config) -> String {
 
 #[cfg(target_arch = "wasm32")]
 #[no_mangle]
-pub extern "C" fn wasm_process(code: CString, use_spaces: bool, indent_width: u8) -> *mut c_char {
+pub extern "C" fn wasm_process(code: *mut u8, length: usize, use_spaces: bool, indent_width: u8) -> *mut c_char {
     let mut config = stylua_lib::Config::new();
 
     config.indent_type = if use_spaces {
@@ -34,10 +34,7 @@ pub extern "C" fn wasm_process(code: CString, use_spaces: bool, indent_width: u8
     };
     config.indent_width = indent_width.try_into().unwrap();
 
-    let output = match code.to_str() {
-        Ok(code) => process(code.to_string(), config),
-        Err(error) => error.to_string(),
-    };
+    let output = process(unsafe { String::from_raw_parts(code, length, length) }, config);
     WASM_OUT_LENGTH.set(output.len());
     let s = CString::new(output).unwrap();
     s.into_raw()
@@ -59,5 +56,8 @@ pub extern "C" fn wasm_heap_alloc_string(capacity: usize) -> *mut u8 {
 }
 
 fn main() {
-    println!("{}", process("print 'test'".to_string(), stylua_lib::Config::new()));
+    println!(
+        "{}",
+        process("print 'test'".to_string(), stylua_lib::Config::new())
+    );
 }

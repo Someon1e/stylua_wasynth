@@ -4,8 +4,6 @@ local stylua = require(script.stylua_wasynth)(wasm)
 return function(text, config: { useSpaces: boolean, indentWidth: number })
 	-- TODO: clean up memory
 
-	text ..= "\0" -- CString, must be null terminated
-
 	local vec = stylua.func_list.wasm_heap_alloc_string(#text)
 	stylua.rt.store.string(stylua.memory_list.memory, vec, text)
 
