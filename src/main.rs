@@ -24,7 +24,7 @@ fn process(code: String, config: stylua_lib::Config) -> String {
 
 #[cfg(target_arch = "wasm32")]
 #[no_mangle]
-pub fn wasm_process(code: CString, use_spaces: bool, indent_width: u8) -> *mut c_char {
+pub extern "C" fn wasm_process(code: CString, use_spaces: bool, indent_width: u8) -> *mut c_char {
     let mut config = stylua_lib::Config::new();
 
     config.indent_type = if use_spaces {
@@ -45,13 +45,13 @@ pub fn wasm_process(code: CString, use_spaces: bool, indent_width: u8) -> *mut c
 
 #[cfg(target_arch = "wasm32")]
 #[no_mangle]
-pub fn wasm_processed_length() -> usize {
+pub extern "C" fn wasm_processed_length() -> usize {
     WASM_OUT_LENGTH.borrow().take()
 }
 
 #[cfg(target_arch = "wasm32")]
 #[no_mangle]
-fn wasm_heap_alloc_string(capacity: usize) -> *mut u8 {
+pub extern "C" fn wasm_heap_alloc_string(capacity: usize) -> *mut u8 {
     let mut str = String::with_capacity(capacity);
     let ptr = str.as_mut_ptr();
     std::mem::forget(str);
