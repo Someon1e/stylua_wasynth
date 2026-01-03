@@ -1,0 +1,27 @@
+on:
+  workflow_dispatch:
+  push: { branches: ["main"] }
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    name: Upload Plugin
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v4
+
+      - name: Install Rojo
+        run: |
+          rustup update stable
+          cargo install rojo --version ^7
+
+      - name: Build
+        run: |
+          cd plugin
+          rojo build -o stylua.rbxm
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v6.0.0
+        with:
+          name: stylua
+          path: plugin/stylua.rbxm
