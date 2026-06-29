@@ -5,6 +5,10 @@ permissions:
 on:
   workflow_dispatch:
 
+  push:
+    branches:
+      - spider
+
 jobs:
   build:
     name: Convert StyLua to Luau
