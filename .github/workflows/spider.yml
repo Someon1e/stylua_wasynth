@@ -1,0 +1,50 @@
+name: Compile StyLua
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - spider
+
+jobs:
+  build:
+    name: Convert StyLua to Luau
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust and Binaryen (wasm-opt)
+        run: |
+          rustup update stable
+          rustup target add wasm32-unknown-unknown
+          sudo apt update && sudo apt install -y binaryen
+
+      - name: Build StyLua to WASM
+        run: |
+          cargo build --release --target wasm32-unknown-unknown
+
+      - name: Run wasm-opt
+        run: |
+          cd target/wasm32-unknown-unknown/release/
+          wasm-opt -O4 stylua_spider.wasm -o stylua_spider-opt.wasm
+
+      - name: Install Spider (wasm2luau)
+        run: |
+          cargo install --branch trunk --git "https://github.com/SovereignSatellite/Spider" spider-cli
+
+      - name: Convert WASM to Luau
+        run: |
+          spider-cli compile -O target/wasm32-unknown-unknown/release/stylua_spider-opt.wasm > plugin/src/format/stylua_spider.luau
+          echo "return function() return rt_export_map, module() end" >> plugin/src/format/stylua_spider.luau
+
+      - name: Commit and Push Changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add plugin/src/format/stylua_spider.luau
+          git commit -m "feat: Update stylua_spider.luau"
+          git push
