@@ -38,7 +38,7 @@ jobs:
 
       - name: Convert WASM to Luau
         run: |
-          spider-cli compile -O target/wasm32-unknown-unknown/release/stylua_spider-opt.wasm > plugin/src/format/stylua_spider.luau
+          spider-cli compile -O3 target/wasm32-unknown-unknown/release/stylua_spider-opt.wasm > plugin/src/format/stylua_spider.luau
           echo "return function() return rt_export_map, module() end" >> plugin/src/format/stylua_spider.luau
 
       - name: Commit and Push Changes
