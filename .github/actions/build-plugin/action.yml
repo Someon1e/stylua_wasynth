@@ -1,0 +1,46 @@
+name: Build Plugin
+description: Builds the Rojo plugin and uploads artifact
+inputs:
+  tag:
+    description: "Tag for release"
+    required: false
+    default: ""
+  release_name:
+    description: "Release name"
+    required: false
+    default: ""
+  release_notes:
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Rojo
+      shell: bash
+      run: |
+        rustup update stable
+        cargo install rojo --version ^7
+
+    - name: Build
+      shell: bash
+      run: |
+        cd plugin
+        rojo build -o stylua.rbxm
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: stylua
+        path: plugin/stylua.rbxm
+
+    - name: Create GitHub Release & Upload Asset
+      if: ${{ inputs.tag != '' }}
+      uses: softprops/action-gh-release@v3
+      with:
+        tag_name: ${{ inputs.tag }}
+        name: ${{ inputs.release_name != '' && inputs.release_name || inputs.tag }}
+        files: plugin/stylua.rbxm
+        body: ${{ inputs.release_notes }}
+        draft: false
+        prerelease: false

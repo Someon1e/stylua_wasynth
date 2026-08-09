@@ -1,0 +1,28 @@
+name: Build and Release Plugin
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag for the release (e.g., v0.9)"
+        required: true
+      release_name:
+        description: "Release name"
+        required: false
+        default: ""
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build and Release
+        uses: ./.github/actions/build-plugin
+        with:
+          tag: ${{ inputs.tag }}
+          release_name: ${{ inputs.release_name != '' && inputs.release_name || inputs.tag }}
+          release_notes: "How to Install: put stylua.rbxm into your Roblox Studio plugins folder"
